@@ -6,10 +6,10 @@ object TexasHoldemEvaluator {
 
 
   def isFourOfAKind(board:List[String],hand:List[String]):Boolean={
-    val combinedlist = board ::: hand
+    val combinedList = board ::: hand
     // find any issues combined.
     hand.foreach((item)=>{
-      val count  = combinedlist.filter( (x) => x(0).equals(item(0))).length;
+      val count  = combinedList.filter( (x) => x(0).equals(item(0))).length;
       if(count == 4) return  true
     })
 
@@ -131,5 +131,96 @@ object TexasHoldemEvaluator {
     isStraight(board,hand) && isPair(board,hand)
   }
 
-  
+
+  def convertToArray(stringChar: String): List[String] ={
+
+    val item = stringChar.toCharArray
+    var arrayItems:ListBuffer[String] = new ListBuffer[String]();
+    var count = 1;
+    for(record <-0 to item.length -1){
+      if(count %2 == 0 ){
+        var card:String = item(record-1) + ""+item(record);
+        arrayItems +=card
+      }
+      count = count + 1;
+
+    }
+    arrayItems.toList
+  }
+
+
+  def getRanking(board:List[String],card:List[String]): Integer ={
+
+    if(isRoyalFlush(board,card)){
+      1
+    }else if(isStraightFlush(board,card)){
+      2
+    }
+    else if(isFourOfAKind(board,card)){
+      3
+    }
+    else if(isFullHouse(board,card)){
+      4
+    }
+    else if(isFlush(board,card)){
+      5
+    }
+    else if(isStraight(board,card)){
+      6
+    }
+
+    else if(isThreeOfAKind(board,card)){
+      7
+    }
+
+
+    else if(isTwoPair(board,card)){
+      8
+    }
+    else if(isPair(board,card)){
+      9
+    }
+
+    else{
+      10
+    }
+
+  }
+  def  getWinner(board:String,hands:List[String]): String ={
+
+    //todo: get board array
+    var boardArray:List[String] = convertToArray(board)
+
+    //todo; loop through the hands
+    var handsMap = collection.mutable.Map[Int,List[String]]()
+
+    var counter =1;
+    hands.foreach((x)=>{
+      val handsArray:List[String] = convertToArray(x)
+
+
+      val rank = getRanking(boardArray,handsArray)
+      var xp:ListBuffer[String] = new ListBuffer[String]
+      xp += x;
+
+
+      if(handsMap.keySet.exists(_ == rank)){
+        handsMap.put(rank,xp.toList ++ handsMap.get(rank).get)
+      }else{
+        handsMap.put(rank,xp.toList)
+      }
+
+      counter = counter +1;
+    })
+
+
+    //todo : lets work upon the
+
+    val sortedlist = handsMap.toSeq.sortWith(_._1>_._1);
+
+    sortedlist.toString()
+  }
+
+
+
 }
